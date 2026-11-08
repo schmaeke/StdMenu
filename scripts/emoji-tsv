@@ -1,0 +1,18 @@
+#!/bin/sh
+# Converts Unicode's emoji-test.txt, given as a file or else downloaded, into `name<TAB>emoji<TAB>emoji`
+# lines: the name is shown and searched, the emoji is printed and drawn as the icon. Fails rather than
+# printing nothing.
+set -eu
+url=https://unicode.org/Public/emoji/latest/emoji-test.txt
+if [ $# -gt 0 ]; then
+    input=$1
+else
+    input=$(mktemp)
+    trap 'rm -f "$input"' EXIT
+    curl -fsSL "$url" -o "$input"
+fi
+awk -F'# ' '/; fully-qualified/ {
+        split($2, f, " "); name = $2; sub(/^[^ ]+ E[0-9.]+ /, "", name)
+        print name "\t" f[1] "\t" f[1]; n++
+    }
+    END { if (n == 0) { print "emoji-tsv: no emoji found" > "/dev/stderr"; exit 1 } }' "$input"

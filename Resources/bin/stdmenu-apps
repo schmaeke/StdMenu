@@ -1,0 +1,6 @@
+#!/bin/sh
+# Lists installed applications as `name<TAB>path<TAB>path` (label, value, icon).
+find /Applications /System/Applications "$HOME/Applications" \
+     /System/Library/CoreServices/Finder.app -maxdepth 2 -name '*.app' 2>/dev/null |
+    awk -F/ '{ name = $NF; sub(/\.app$/, "", name); print name "\t" $0 "\t" $0 }' |
+    sort -f

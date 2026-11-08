@@ -1,0 +1,9 @@
+#!/bin/sh
+# Lists the subdirectories of each given directory, including symlinked ones, as `parent/name<TAB>path`,
+# alphabetically within each directory and without hidden ones.
+#
+#   stdmenu-dirs ~/Software ~/Writing | stdmenu -0 -p directory | xargs -0 stdmenu-ghostty
+for directory in "$@"; do
+    find -L "$directory" -mindepth 1 -maxdepth 1 -type d ! -name '.*' | sort -f |
+        awk -F/ '{ print $(NF - 1) "/" $NF "\t" $0 }'
+done

@@ -1,0 +1,26 @@
+# StdMenu configuration: one `key = value` per line. After editing, run `stdmenu --reload`,
+# which also reports mistakes.
+
+# Appearance. Without a theme the window uses the native macOS look. Themes are files in
+# ~/.config/stdmenu/themes/; give one name, or one per system appearance. `font-family` takes
+# a family name such as Menlo, or `monospace` for the system's monospaced font. The scrollbar
+# follows System Settings (`system`) or is hidden (`never`). `lines` is how many rows a menu
+# shows at most (default 10); `stdmenu -l` overrides it.
+#
+# theme       = light:my-light, dark:my-dark
+# font-family = monospace
+# font-size   = 15
+# scrollbar   = never
+# lines       = 10
+
+# Hotkeys: <modifiers>-<key> = <shell command>
+#
+# Modifiers: cmd, ctrl, alt, shift; every hotkey needs one, except f1-f12. Keys: letters, digits,
+# punctuation, space, return, tab, escape, delete, arrows, home, end, pageup, pagedown, f1-f12,
+# and `minus` and `equal` for - and =. Commands run in /bin/sh with `stdmenu`, the bundled scripts
+# (stdmenu-apps, stdmenu-dirs, stdmenu-chromium-profiles, stdmenu-ghostty) and $STDMENU_RESOURCES
+# available. `stdmenu -0 | xargs -0` passes the choice on as one argument, whatever it contains.
+# Pressing a hotkey again closes its menu.
+
+alt-space       = stdmenu-apps | stdmenu -0 -p apps | xargs -0 open
+alt-shift-space = stdmenu -p emoji < "$STDMENU_RESOURCES/emoji.tsv" | stdmenu --paste

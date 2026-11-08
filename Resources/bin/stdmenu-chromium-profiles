@@ -1,0 +1,23 @@
+#!/bin/sh
+# Lists the profiles of Chromium, or another Chromium-based browser, as `name<TAB>directory<TAB>icon`
+# in the browser's own order. Arguments `name=icon` give profiles an icon, such as an emoji; the
+# others show the browser's icon. -d and -a choose another browser's data directory and app.
+#
+#   stdmenu-chromium-profiles Home=🏠 Work=💼 | stdmenu -0 -p profile |
+#       xargs -0 -I{} open -na Chromium --args --profile-directory={}
+data="$HOME/Library/Application Support/Chromium"
+app=/Applications/Chromium.app
+while getopts d:a: option; do
+    case $option in
+        d) data=$OPTARG ;;
+        a) app=$OPTARG ;;
+        *) exit 2 ;;
+    esac
+done
+shift $((OPTIND - 1))
+
+jq -r --arg app "$app" '
+    ($ARGS.positional | map(capture("^(?<name>[^=]+)=(?<icon>.+)$") | {(.name): .icon}) | add // {}) as $icons
+    | .profile as $p | ($p.profiles_order // ($p.info_cache | keys_unsorted))[] | select($p.info_cache[.]) | . as $directory
+    | $p.info_cache[$directory].name as $name
+    | "\($name)\t\($directory)\t\($icons[$name] // $app)"' "$data/Local State" --args "$@"

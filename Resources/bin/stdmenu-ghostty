@@ -1,0 +1,13 @@
+#!/bin/sh
+# Opens a new Ghostty window in the given directory. Ghostty asks once for permission to be
+# controlled by StdMenu.
+exec osascript - "$1" <<'APPLESCRIPT'
+on run argv
+    tell application "Ghostty"
+        set surface to new surface configuration
+        set initial working directory of surface to item 1 of argv
+        new window with configuration surface
+        activate
+    end tell
+end run
+APPLESCRIPT
