@@ -48,11 +48,17 @@ struct Item: Sendable {
 struct Query {
     fileprivate let terms: [[Unicode.Scalar]]
     fileprivate let whole: [Unicode.Scalar]
+    /// The text as typed, without surrounding whitespace.
+    fileprivate let typed: String
+    /// The terms typed with capitals, which favour labels with the same capitals.
+    fileprivate let capitalized: [Substring]
 
     init(_ text: String) {
         let folded = fold(text)
         terms = folded.split(whereSeparator: \.isWhitespace).map { Array($0.unicodeScalars) }
         whole = Array(folded.trimmingCharacters(in: .whitespaces).unicodeScalars)
+        typed = text.trimmingCharacters(in: .whitespaces)
+        capitalized = text.split(whereSeparator: \.isWhitespace).filter { $0.contains(where: \.isUppercase) }
     }
 }
 
@@ -65,21 +71,22 @@ private func fold(_ string: String) -> String {
 
 /// Returns the indices of the items matching every term of the query, best first.
 ///
-/// As in dmenu, an item whose label is the query comes first; the others are ordered by match quality
-/// and otherwise keep their input order. The order depends only on the input and the query, so the
-/// same keys always choose the same item.
+/// As in dmenu, an item whose label is the query comes first, in the same case before any other; the
+/// others are ordered by match quality. Among equals, a query with capitals favours labels with the
+/// same capitals, and otherwise items keep their input order. The order depends only on the input and
+/// the query, so the same keys always choose the same item.
 func rank(_ items: [Item], by query: Query) -> [Int] {
-    var matches: [(index: Int, score: Int)] = []
+    var matches: [(index: Int, score: Int, capitals: Int)] = []
     candidates: for (index, item) in items.enumerated() {
         var score = 0
         for term in query.terms {
             guard let found = match(term, in: item.key) else { continue candidates }
             score += found.quality
         }
-        if !query.whole.isEmpty && item.key == query.whole { score = .max }
-        matches.append((index, score))
+        if !query.whole.isEmpty && item.key == query.whole { score = item.label == query.typed ? .max : .max - 1 }
+        matches.append((index, score, query.capitalized.count { item.label.contains($0) }))
     }
-    matches.sort { $0.score != $1.score ? $0.score > $1.score : $0.index < $1.index }
+    matches.sort { ($0.score, $0.capitals, $1.index) > ($1.score, $1.capitals, $0.index) }
     return matches.map(\.index)
 }
 

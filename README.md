@@ -52,8 +52,9 @@ instead of a newline, so that `xargs -0` passes it on as one argument, whatever 
 | Escape                              | cancel                                                 |
 
 Search terms are case- and accent-insensitive and may come in any order. As in dmenu, an item whose
-label is exactly the search text comes first; the others are ranked by match quality (label prefix,
-word prefix, substring, subsequence) and otherwise keep their input order.
+label is exactly the search text comes first, in the same case before any other; the others are ranked
+by match quality (label prefix, word prefix, substring, subsequence). Among equals, a term typed with
+capitals favours labels with the same capitals, and otherwise items keep their input order.
 
 ## Configuration
 
