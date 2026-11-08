@@ -103,10 +103,10 @@ import AppKit
 
     private func handle(_ request: Request, client: Int32) {
         switch request {
-        case let .menu(prompt, lines, items):
+        case let .menu(prompt, lines, width, items):
             menusShown += 1
             let shown = menusShown
-            menu.show(items, prompt: prompt, lines: lines) { [unowned self] choice in
+            menu.show(items, prompt: prompt, lines: lines, width: width) { [unowned self] choice in
                 if shown == menusShown { opener = nil }
                 if choice != nil { lastChoice = .now }
                 Wire.reply(client, choice)

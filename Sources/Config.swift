@@ -7,6 +7,8 @@ struct Appearance {
     var showsScrollbar = true
     /// How many rows a menu shows at most, unless it asks for another number.
     var lines = 10
+    /// How wide the window is in points, unless a menu asks for another width.
+    var width = 640
 }
 
 /// A hotkey and the shell command it runs.
@@ -72,6 +74,12 @@ struct Config {
                     continue
                 }
                 config.appearance.lines = count
+            case "width":
+                guard let points = Int(value), Wire.width.contains(points) else {
+                    report("width must be a number from \(Wire.width.lowerBound) to \(Wire.width.upperBound), got '\(value)'")
+                    continue
+                }
+                config.appearance.width = points
             case "scrollbar":
                 switch value {
                 case "system": config.appearance.showsScrollbar = true

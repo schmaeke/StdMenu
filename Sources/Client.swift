@@ -4,8 +4,8 @@ import Foundation
 /// in a few milliseconds.
 enum Client {
     /// Prints the chosen value followed by a newline, or by a NUL byte for `xargs -0`.
-    static func menu(prompt: String, lines: Int?, terminator: UInt8) -> Int32 {
-        let reply = send("menu\t\(lines.map(String.init) ?? "")\t\(prompt)", stdin())
+    static func menu(prompt: String, lines: Int?, width: Int?, terminator: UInt8) -> Int32 {
+        let reply = send("menu\t\(lines.map(String.init) ?? "")\t\(width.map(String.init) ?? "")\t\(prompt)", stdin())
         guard reply.starts(with: Wire.ok) else { return 1 }
         return write(reply.dropFirst(Wire.ok.count) + [terminator]) ? 0 : 1
     }

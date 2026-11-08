@@ -9,6 +9,8 @@ enum Wire {
     static let ok = Array("ok\n".utf8)
     /// The numbers of rows a menu may ask for.
     static let lines = 1...1000
+    /// The window widths a menu may ask for, in points.
+    static let width = 200...4000
 
     /// In the per-user temporary directory, which only this user can enter, whatever `$TMPDIR` says.
     static let path: String = {
@@ -102,8 +104,8 @@ enum Wire {
 
 /// A request as received by the agent.
 enum Request: Sendable {
-    /// A menu with at most `lines` visible rows, or the configured number if nil.
-    case menu(prompt: String, lines: Int?, items: [Item])
+    /// A menu with at most `lines` visible rows and `width` points wide, or as configured if nil.
+    case menu(prompt: String, lines: Int?, width: Int?, items: [Item])
     case paste(String)
     case reload
     case invalid
@@ -111,12 +113,13 @@ enum Request: Sendable {
     init(_ bytes: [UInt8]) {
         let newline = bytes.firstIndex(of: 0x0A) ?? bytes.endIndex
         let header = String(decoding: bytes[..<newline], as: UTF8.self)
-            .split(separator: "\t", maxSplits: 2, omittingEmptySubsequences: false)
+            .split(separator: "\t", maxSplits: 3, omittingEmptySubsequences: false)
         let body = bytes[min(newline + 1, bytes.endIndex)...]
         switch header.first {
-        case "menu" where header.count == 3:  // menu<TAB>lines<TAB>prompt
+        case "menu" where header.count == 4:  // menu<TAB>lines<TAB>width<TAB>prompt
             let lines = Int(header[1]).flatMap { Wire.lines.contains($0) ? $0 : nil }
-            self = .menu(prompt: String(header[2]), lines: lines, items: Item.parse(body))
+            let width = Int(header[2]).flatMap { Wire.width.contains($0) ? $0 : nil }
+            self = .menu(prompt: String(header[3]), lines: lines, width: width, items: Item.parse(body))
         case "paste": self = .paste(String(decoding: body, as: UTF8.self))
         case "reload": self = .reload
         default: self = .invalid

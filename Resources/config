@@ -5,13 +5,15 @@
 # ~/.config/stdmenu/themes/; give one name, or one per system appearance. `font-family` takes
 # a family name such as Menlo, or `monospace` for the system's monospaced font. The scrollbar
 # follows System Settings (`system`) or is hidden (`never`). `lines` is how many rows a menu
-# shows at most (default 10); `stdmenu -l` overrides it.
+# shows at most (default 10); `stdmenu -l` overrides it. `width` is the window width in points
+# (default 640); `stdmenu -w` overrides it.
 #
 # theme       = light:my-light, dark:my-dark
 # font-family = monospace
 # font-size   = 15
 # scrollbar   = never
 # lines       = 10
+# width       = 640
 
 # Hotkeys: <modifiers>-<key> = <shell command>
 #

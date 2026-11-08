@@ -6,7 +6,6 @@ import UniformTypeIdentifiers
 /// One menu is open at a time; showing another one cancels the previous one in place. The window
 /// is a non-activating panel, so the application underneath keeps its focus for pasting.
 @MainActor final class Menu: NSObject {
-    private static let width: CGFloat = 640
     private static let radius: CGFloat = 16
     private static let padding: CGFloat = 6
 
@@ -89,7 +88,7 @@ import UniformTypeIdentifiers
 
     /// Shows the items, at most `lines` at a time, on the screen under the mouse; `completion` receives
     /// the chosen value or nil.
-    func show(_ items: [Item], prompt: String, lines: Int?, completion: @escaping (String?) -> Void) {
+    func show(_ items: [Item], prompt: String, lines: Int?, width: Int?, completion: @escaping (String?) -> Void) {
         if let previous = self.completion {
             self.completion = nil
             previous(nil)
@@ -112,7 +111,8 @@ import UniformTypeIdentifiers
 
         let visible = screen.visibleFrame
         let top = (visible.maxY - visible.height * 0.2).rounded()
-        area = NSRect(x: (visible.midX - Self.width / 2).rounded(), y: visible.minY, width: Self.width,
+        let width = min(CGFloat(width ?? appearance.width), visible.width)
+        area = NSRect(x: (visible.midX - width / 2).rounded(), y: visible.minY, width: width,
                       height: top - visible.minY)
 
         refilter()
